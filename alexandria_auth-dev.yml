@@ -1,0 +1,67 @@
+info:
+  description: Alexandria login module - OAuth Auth Server
+
+spring:
+  jpa:
+    database: postgresql
+    show-sql: false
+  datasource:
+    platform: postgres
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:49153/alexandria_db
+    username: alexandria
+    password: secret
+  devtools:
+    livereload:
+      enabled: true
+      port: 35729
+    restart:
+      enabled: true
+      poll-interval: 1000
+      quiet-period: 400
+
+liquibase:
+  enabled: true
+  change-log: classpath:/liquibase/db-changelog-master.xml
+  check-change-log-location: true
+  drop-first: false
+  url: ${spring.datasource.url}
+  user: ${spring.datasource.username}
+  password: ${spring.datasource.password}
+
+server:
+  port: 2222
+  context-path: /auth
+
+
+app:
+  ad-domain: WELLD.CH
+  ad-server: ldap://192.168.1.99:3268/ # 389 port default but changed to 3268
+  ad-server-name: ldap://win-52idnkdaee8.welld.ch:3268
+  ad-manager:
+    user: alexandria@WELLD.CH
+    password: _welld8377_
+  service-principal: HTTP/alexandria.welld.ch@WELLD.CH
+  keytab-location: classpath:ad/alexandria.keytab
+  ldap-search-base: dc=welld,dc=ch
+  ldap-search-alx: CN=alexandria,CN=Users,DC=WELLD,DC=CH
+  ldap-search-filter: "(| (userPrincipalName={0}) (sAMAccountName={0}))"
+
+eureka:
+  client:
+    enabled: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://localhost:1111/eureka/
+  instance:
+    status-page-url: ${server.contextPath}/info
+    health-check-url-path: ${server.contextPath}/health
+
+security:
+  oauth2:
+    client:
+      client-id: alx
+      client-secret: alxsecret
+      scope: read,write,authorization_code,refresh_token,password
+      auto-approve-scopes: '.*'
+
